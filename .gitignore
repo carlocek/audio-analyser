@@ -1,0 +1,27 @@
+# Bytecode e file temporanei
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Cartelle di build
+build/
+dist/
+*.egg-info/
+
+# File di configurazione locale
+.env
+*.log
+.vscode/
+.idea/
+.conda
+
+# Output generato
+data/processed/
+data/models/
+*.h5
+*.ckpt
+
+# File specifici del sistema operativo
+.DS_Store
+Thumbs.db

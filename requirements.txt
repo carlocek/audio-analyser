@@ -1,0 +1,8 @@
+streamlit
+pygame
+librosa
+matplotlib
+numpy --only-binary=:all:
+scipy
+pytest
+plotly
