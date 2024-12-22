@@ -6,3 +6,4 @@ numpy --only-binary=:all:
 scipy
 pytest
 plotly
+dash
