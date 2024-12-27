@@ -160,7 +160,7 @@ if uploaded_file:
     #             st.session_state.user_signals.pop(i)
     #             st.rerun()
 
-    # Summed signal
+    # plot summed signal
     st.subheader(f"Sum of signals associated with top {k} frequencies and user defined signals")
     plot_summed_signal = np.sum(plot_signals, axis=0)
     fig_sum = go.Figure()
@@ -172,11 +172,11 @@ if uploaded_file:
     )
     st.plotly_chart(fig_sum)
 
-    # Save summed signal to WAV file for playback
+    # save summed signal to WAV file for playback
     full_summed_signal = np.sum(full_signals, axis=0)
     summed_signal_int = np.int16(full_summed_signal / np.max(np.abs(full_summed_signal)) * 32767)  # Normalize to 16-bit PCM
-    wav_path = "../data/summed_signal.wav"
-    wavfile.write(wav_path, sample_rate, summed_signal_int)
+    wav_path = "../data/topk_frequencies_signal.wav"
+    wavfile.write("../data/topk_frequencies_signal.wav", sample_rate, summed_signal_int)
 
     st.audio(wav_path, format="audio/wav")
        

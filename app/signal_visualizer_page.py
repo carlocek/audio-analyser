@@ -1,7 +1,7 @@
 import streamlit as st
 import numpy as np
 import plotly.graph_objects as go
-from time import sleep
+from scipy.io import wavfile
 import sys
 sys.path.append("C:/Users/carlo/Desktop/Github_repos/audio-analyser")
 
@@ -18,12 +18,12 @@ def update_signal(i):
 
 st.title("Interactive Signal Visualizer")
 
-max_signals = 4
+max_signals = 5
 sample_rate = 44100
-default_frequency = 1.0
+default_frequency = 10.0
 default_amplitude = 1.0
 default_phase = 0.0
-default_duration = 1.0
+default_duration = 0.1
 
 generator = SignalGenerator(sample_rate)
 
@@ -48,7 +48,7 @@ for i, signal in enumerate(st.session_state.signals):
     with col1:
         frequency = st.slider(
             f"Frequency {i+1} (Hz)",
-            min_value=1.0, max_value=50.0, step=1.0,
+            min_value=1.0, max_value=500.0, step=1.0,
             key=f"frequency_{i}",
             on_change=update_signal,
             args=(i,)
@@ -83,6 +83,7 @@ for i, signal in enumerate(st.session_state.signals):
             st.session_state.signals.pop(i)
             st.rerun()
 
+# plot summed signal
 st.subheader("Summed Signal")
 t = np.linspace(0, default_duration, int(sample_rate * default_duration), endpoint=False)
 if not st.session_state.signals:
@@ -92,3 +93,20 @@ else:
 fig_sum = go.Figure()
 fig_sum.add_trace(go.Scatter(x=t, y=summed_signal, mode="lines", name="Summed Signal", line=dict(color="red", width=3)))
 st.plotly_chart(fig_sum)
+
+# save summed signal to WAV file for playback
+st.subheader("Play Summed Signal")
+min_duration = 1.0 
+if default_duration < min_duration:
+    repetitions = int(np.ceil(min_duration / default_duration))
+    playback_signal = np.tile(summed_signal, repetitions)
+else:
+    playback_signal = summed_signal
+
+normalized_signal = np.int16(playback_signal / np.max(np.abs(playback_signal)) * 32767)
+
+wav_path = "../data/summed_signal.wav"
+wavfile.write(wav_path, sample_rate, normalized_signal)
+
+# Player audio
+st.audio(wav_path, format="audio/wav")
