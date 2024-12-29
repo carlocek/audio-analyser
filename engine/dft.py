@@ -63,20 +63,6 @@ def calculate_frequency(samples, num_samples, sample_rate, freq_index):
 def dft_parallel(samples, sample_rate, progress_bar, block_size):
     num_samples = len(samples)
     num_frequencies = num_samples // 2 + 1
-
-    # progress_bar = st.progress(0, "Computing DFT...")
-
-    # spectrum = []
-    # for i, result in enumerate(
-    #     Parallel(n_jobs=-1)(
-    #         delayed(calculate_frequency)(samples, num_samples, sample_rate, freq_index)
-    #         for freq_index in range(num_frequencies)
-    #     )
-    # ):
-    #     spectrum.append(result)
-    #     # Update the progress bar
-    #     progress_bar.progress((i + 1) / num_frequencies, text="Computing DFT...")
-    
     spectrum = []
     for start in range(0, num_frequencies, block_size):
         end = min(start + block_size, num_frequencies)
@@ -85,6 +71,7 @@ def dft_parallel(samples, sample_rate, progress_bar, block_size):
             for freq_index in range(start, end)
         )
         spectrum.extend(block_results)
-        progress_bar.progress((end) / num_frequencies, text=f"Computing DFT: {end}/{num_frequencies}")
+        progress_text = f"Computing DFT: {end}/{num_frequencies}" if end != num_frequencies else "DFT Completed!"
+        progress_bar.progress(end/num_frequencies, text=progress_text)
 
     return spectrum

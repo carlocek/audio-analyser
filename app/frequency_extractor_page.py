@@ -13,9 +13,9 @@ st.title("Frequency Extractor using DFT")
 uploaded_file = st.file_uploader("Upload a WAV file", type=["wav"])
 if uploaded_file:
     sample_rate, data = wavfile.read(uploaded_file)
-    if data.ndim > 1:  # Convert to mono if stereo
+    if data.ndim > 1: # convert to mono if stereo
         data = np.mean(data, axis=1).astype(data.dtype)
-    data = data - np.mean(data)  # Remove DC offset
+    data = data - np.mean(data) # remove DC offset
 
     generator = SignalGenerator(sample_rate)
 
@@ -44,14 +44,9 @@ if uploaded_file:
         k = N // 2 + 1
 
     if st.button("Run DFT"):
-        # st.write("Computing DFT...")
-
-        progress_bar = st.progress(0, text="Computing DFT")  # Initialize Streamlit progress bar
+        progress_bar = st.progress(0)
         spectrum = dft_parallel(data, sample_rate, progress_bar, block_size=100)
-        st.write("DFT Completed!")
-        spectrum = sorted(spectrum, key=lambda item: item["amplitude"], reverse=True)
 
-        # Extract frequencies, amplitudes, and phases
         freqs = np.array([item["frequency"] for item in spectrum])
         amps = np.array([item["amplitude"] for item in spectrum])
         phases = np.array([item["phase"] for item in spectrum])
@@ -61,6 +56,13 @@ if uploaded_file:
         amps = amps[positive_freqs]
         phases = phases[positive_freqs]
 
+        # spectrum = sorted(spectrum, key=lambda item: item["amplitude"], reverse=True)
+
+        # freqs = np.array([item["frequency"] for item in spectrum])
+        # amps = np.array([item["amplitude"] for item in spectrum])
+        # phases = np.array([item["phase"] for item in spectrum])
+
+        # sort amplitudes in descending order and take top k, filtering also freqs and phases
         top_indices = np.argsort(amps)[::-1][:k]
         top_freqs = freqs[top_indices]
         top_amps = amps[top_indices]
@@ -72,15 +74,16 @@ if uploaded_file:
 
         # plot frequency spectrum
         fig_freq = go.Figure()
-        fig_freq.add_trace(go.Scatter(x=freqs, y=amps, mode="lines", name="Frequency Spectrum"))
+        fig_freq.add_trace(go.Scatter(x=sorted(freqs), y=amps, mode="lines", name="Frequency Spectrum"))
         fig_freq.add_trace(go.Scatter(x=top_freqs, y=top_amps, mode="markers", name="Top Frequencies", marker=dict(size=5, color="red")))
         fig_freq.update_layout(title="Frequency Spectrum", xaxis_title="Frequency (Hz)", yaxis_title="Amplitude")
         st.plotly_chart(fig_freq)
 
+        print("e")
         # reconstruct the signal
         reconstructed_signal = np.zeros_like(t)
         for f, a, p in zip(top_freqs, top_amps, top_phases):
-            _, y = generator.generate_signal(f, a, p, N/sample_rate)
+            y = generator.generate_signal(f, a, p, t)
             reconstructed_signal += y
 
         print("signal reconstructed")
