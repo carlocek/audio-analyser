@@ -18,12 +18,12 @@ def update_signal(i):
 
 st.title("Interactive Signal Visualizer")
 
-max_signals = 5
+max_signals = 10
 sample_rate = 44100
-default_frequency = 10.0
+default_frequency = 20.0
 default_amplitude = 1.0
 default_phase = 0.0
-default_duration = 0.1
+default_duration = 0.05
 
 generator = SignalGenerator(sample_rate)
 
@@ -48,7 +48,7 @@ for i, signal in enumerate(st.session_state.signals):
     with col1:
         frequency = st.slider(
             f"Frequency {i+1} (Hz)",
-            min_value=1.0, max_value=500.0, step=1.0,
+            min_value=20.0, max_value=2000.0, step=10.0,
             key=f"frequency_{i}",
             on_change=update_signal,
             args=(i,)
@@ -103,7 +103,7 @@ if default_duration < min_duration:
 else:
     playback_signal = summed_signal
 
-normalized_signal = np.int16(playback_signal / np.max(np.abs(playback_signal)) * 32767)
+normalized_signal = np.int16(playback_signal * 32767)
 
 wav_path = "../data/summed_signal.wav"
 wavfile.write(wav_path, sample_rate, normalized_signal)

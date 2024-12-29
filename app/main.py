@@ -12,6 +12,7 @@ def main():
     home_page = st.Page(show_home_page, title="Home")
     signal_visualizer_page = st.Page("signal_visualizer_page.py", title="Signal Visualizer")
     frequency_extractor_page = st.Page("frequency_extractor_page.py", title="Frequency Extractor")
+    old_frequency_extractor_page = st.Page("(old)frequency_extractor_page.py", title="Old Frequency Extractor")
 
     pg = st.navigation([home_page, signal_visualizer_page, frequency_extractor_page])
     pg.run()
