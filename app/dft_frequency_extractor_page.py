@@ -51,26 +51,17 @@ if uploaded_file:
         amps = np.array([item["amplitude"] for item in spectrum])
         phases = np.array([item["phase"] for item in spectrum])
 
+        # consider only positive frequencies
         positive_freqs = np.where(freqs > 0)
         freqs = freqs[positive_freqs]
         amps = amps[positive_freqs]
         phases = phases[positive_freqs]
-
-        # spectrum = sorted(spectrum, key=lambda item: item["amplitude"], reverse=True)
-
-        # freqs = np.array([item["frequency"] for item in spectrum])
-        # amps = np.array([item["amplitude"] for item in spectrum])
-        # phases = np.array([item["phase"] for item in spectrum])
 
         # sort amplitudes in descending order and take top k, filtering also freqs and phases
         top_indices = np.argsort(amps)[::-1][:k]
         top_freqs = freqs[top_indices]
         top_amps = amps[top_indices]
         top_phases = phases[top_indices]
-
-        # top_freqs = freqs[:k]
-        # top_amps = amps[:k]
-        # top_phases = phases[:k]
 
         # plot frequency spectrum
         fig_freq = go.Figure()
@@ -79,14 +70,14 @@ if uploaded_file:
         fig_freq.update_layout(title="Frequency Spectrum", xaxis_title="Frequency (Hz)", yaxis_title="Amplitude")
         st.plotly_chart(fig_freq)
 
-        print("e")
+        st.write("Starting signal reconstruction")
         # reconstruct the signal
         reconstructed_signal = np.zeros_like(t)
         for f, a, p in zip(top_freqs, top_amps, top_phases):
-            y = generator.generate_signal(f, a, p, t)
+            _, y = generator.generate_signal(f, a, p, N/sample_rate)
             reconstructed_signal += y
 
-        print("signal reconstructed")
+        st.write("Signal reconstructed")
         # plot reconstructed signal
         fig_recon = go.Figure()
         fig_recon.add_trace(go.Scatter(x=t, y=reconstructed_signal, mode="lines", name="Reconstructed Signal"))
