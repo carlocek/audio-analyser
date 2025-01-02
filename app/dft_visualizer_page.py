@@ -129,9 +129,12 @@ if st.toggle("Show fixed wrapping frequency animation"):
 
 if st.toggle("Show frequency extraction animation"):
     st.write("Signal projection on complex circumference for increasing test frequencies and relative centroids x-coordinates")
-    fig_circle, fig_centroid = wrapping_signal_varyingfreq_animation(t, summed_signal)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.plotly_chart(fig_circle, use_container_width=True)
-    with col2:
-        st.plotly_chart(fig_centroid, use_container_width=True)
+    # fig_circle, fig_centroid = wrapping_signal_varyingfreq_animation(t, summed_signal)
+    # col1, col2 = st.columns(2)
+    # with col1:
+    #     st.plotly_chart(fig_circle, use_container_width=True)
+    # with col2:
+    #     st.plotly_chart(fig_centroid, use_container_width=True)
+
+    fig = wrapping_signal_varyingfreq_animation(t, summed_signal)
+    st.plotly_chart(fig, use_container_width=True)
