@@ -1,5 +1,5 @@
 # Audio Analysis Tool
-This is a small web application to upload wav file, apply and visualize the Discrete Fourier Transform definition to extract frequencies and reconstruct the original signal
+This is a small web application developed with Python and Streamlit to upload wav file, apply and visualize the Discrete Fourier Transform definition to extract frequencies and reconstruct the original signal
 ## Requirements
 - Python 3.8 or later
 - Libraries listed in requirements.txt
@@ -18,3 +18,8 @@ This is a small web application to upload wav file, apply and visualize the Disc
     ```bash
     streamlit run main.py
     ```
+
+## Notes
+This project is heavily inspired by the following videos:
+- [3Blue1Brown's Fourier Transform video](https://youtu.be/spUNpyF58BY)
+- [Sebastian Lague's sound coding adventure](https://youtu.be/iA6wRgwl7k0)
