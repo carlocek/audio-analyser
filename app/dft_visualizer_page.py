@@ -31,8 +31,8 @@ generator = SignalGenerator(sample_rate)
 if 'signals' not in st.session_state:
     st.session_state.signals = []
 
-# button to add new signals
-st.subheader("Let's start by generating some signals and visualize their summed signal")
+st.subheader("Signal Visualization")
+st.write("Let's start by generating some signals and visualize their summed signal")
 if len(st.session_state.signals) < max_signals and st.button("Add Signal"):
     t, y = generator.generate_signal(default_frequency, default_amplitude, default_phase, default_duration)
     st.session_state.signals.append(Signal(default_frequency, default_amplitude, default_phase, t, y))
@@ -113,28 +113,22 @@ wavfile.write(wav_path, sample_rate, normalized_signal)
 st.audio(wav_path, format="audio/wav")
 
 
-# Analisi della proiezione su cerchio
+# section on DFT visualization
 st.subheader("Frequency Extraction Visualization")
-st.write("Explain...")
+st.markdown("""
+            Let's see how the DFT is computed on the summed signal above. This signal, as defined by you, is composed of one or more sine waves having frequencies $f_i$ with $i \in \{0,\ldots, n\}$.
+            The idea is to "wrap" the signal around a circle using a certain "wrapping frequency" $f_t$ and track the position of the centroid (or baricenter) of the signal samples.
+            Ww then increase $f_t$ and whenever $f_t=f_i$ we observe a position-shift of the centroid -> that's the basic intuition on how we detect frequencies in time-domain signals using DFT
+            """
+)
 
-
-
-
-# Visualizzazione del grafico
 if st.toggle("Show fixed wrapping frequency animation"):
-    test_freq = st.slider("Test Frequency (Hz)", 20.0, 2000.0, 440.0, 10.0)
+    test_freq = st.slider("Wrapping Frequency (Hz)", 0.0, 2000.0, 440.0, 10.0)
     st.write("Signal projection on complex circumference for fixed test frequency")
     fig = wrapping_signal_fixedfreq_animation(t, summed_signal, test_freq)
     st.plotly_chart(fig, use_container_width=True)
 
 if st.toggle("Show frequency extraction animation"):
     st.write("Signal projection on complex circumference for increasing test frequencies and relative centroids x-coordinates")
-    # fig_circle, fig_centroid = wrapping_signal_varyingfreq_animation(t, summed_signal)
-    # col1, col2 = st.columns(2)
-    # with col1:
-    #     st.plotly_chart(fig_circle, use_container_width=True)
-    # with col2:
-    #     st.plotly_chart(fig_centroid, use_container_width=True)
-
     fig = wrapping_signal_varyingfreq_animation(t, summed_signal)
     st.plotly_chart(fig, use_container_width=True)

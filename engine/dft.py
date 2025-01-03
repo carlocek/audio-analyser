@@ -41,22 +41,48 @@ def dft_parallel(samples, sample_rate, progress_bar, block_size):
 def create_updatemenus(x, y, frame_duration, transition_duration):
     return [
         {
+            "active": -1,
             "type": "buttons",
             "direction": "right",
             "x": x,
             "y": y,
+            "xanchor": "left",
+            "yanchor": "top",
             "buttons": [
+                # Play/Pause Button
                 {
-                    "label": "Play",
+                    "label": "Play/Pause",
                     "method": "animate",
-                    "args": [None, {"frame": {"duration": frame_duration, "redraw": True}, "transition": {"duration": transition_duration}, "fromcurrent": False}]
-                },
-                {
-                    "label": "Reset",
-                    "method": "animate",
-                    "args": [{"x": [[]], "y": [[]]}, {"mode": "immediate", "frame": {"duration": 0, "redraw": False}, "transition": {"duration": 0}}]
-                    # "args": [[None], {"mode": "immediate", "frame": {"duration": 0, "redraw": False}, "transition": {"duration": 0}}]
+                    "args": [
+                        None,  # animate every frame
+                        {
+                            "frame": {"duration": frame_duration, "redraw": True},
+                            "transition": {"duration": transition_duration},
+                            "fromcurrent": True,  # start from last drawn frame
+                        }
+                    ],
+                    "args2": [
+                        [None],  # stop all frames
+                        {
+                            "mode": "immediate",
+                            "frame": {"duration": 0, "redraw": False},
+                            "transition": {"duration": 0},
+                        }
+                    ]
                 }
+                # Reset Button
+                # {
+                #     "label": "Reset",
+                #     "method": "animate",
+                #     "args": [
+                #         None,
+                #         {
+                #             "frame": {"duration": frame_duration, "redraw": True},
+                #             "transition": {"duration": transition_duration},
+                #             "fromcurrent": False,
+                #         }
+                #     ]
+                # }
             ]
         }
     ]
@@ -86,9 +112,9 @@ def wrapping_signal_fixedfreq_animation(t, signal, test_freq):
             ),
         ],
         layout=go.Layout(
-            xaxis=dict(range=[-1.0, 1.0], dtick=1.0, showgrid=True),
-            yaxis=dict(range=[-1.0, 1.0], dtick=1.0, showgrid=True, scaleanchor="x"),
-            updatemenus=create_updatemenus(0.15, 1.20, 50, 8000),
+            xaxis=dict(range=[-max(np.abs(signal)), max(np.abs(signal))], dtick=1.0, showgrid=True),
+            yaxis=dict(range=[-max(np.abs(signal)), max(np.abs(signal))], dtick=1.0, showgrid=True, scaleanchor="x"),
+            updatemenus=create_updatemenus(0.0, 1.20, 50, 45),
             showlegend=False
         ),
         frames=frames
@@ -98,48 +124,18 @@ def wrapping_signal_fixedfreq_animation(t, signal, test_freq):
 
 def wrapping_signal_varyingfreq_animation(t, signal):
     num_samples = len(signal)
-    frames_circle = []
-    frames_centroid = []
     frames = []
     freq_values = np.arange(0, 2000, 10)
     
     for test_freq in freq_values:
-        x_proj = signal * np.cos(2 * np.pi * test_freq * t)
-        y_proj = signal * np.sin(2 * np.pi * test_freq * t)
+        phase_correction = np.angle(signal[0] + 1j * signal[1])
+        x_proj = signal * np.cos(2 * np.pi * test_freq * (t))
+        y_proj = signal * np.sin(2 * np.pi * test_freq * (t))
         centroid_x = np.mean(x_proj)
         centroid_y = np.mean(y_proj)
         is_0hz = test_freq==0
         is_nyquist = test_freq==num_samples//2 and num_samples%2==0
         amplitude_scale = 1 if is_0hz or is_nyquist else 2
-
-        # frames_circle.append(
-        #     go.Frame(
-        #         data=[
-        #             go.Scatter(x=x_proj, y=y_proj, mode="markers", name="Projection Trace"),
-        #             go.Scatter(x=[centroid_x], y=[centroid_y], mode="markers", name="Centroid", marker=dict(color="red", size=8, symbol="cross")),
-        #             go.Scatter(
-        #                 x=max(np.abs(signal))*np.cos(np.linspace(0, 2 * np.pi, 100)),
-        #                 y=max(np.abs(signal))*np.sin(np.linspace(0, 2 * np.pi, 100)),
-        #                 mode="lines", name="Reference Circle", line=dict(color="gray", dash="dash")
-        #             ),
-        #         ],
-        #         layout=go.Layout(
-        #             annotations=[dict(x=0.6, y=1.15, xref="paper", yref="paper", text=f"Test Frequency: {test_freq:.2f} Hz", showarrow=False, font=dict(size=14, color="white"))]
-        #         )
-        #     )
-        # )
-        # frames_centroid.append(
-        #     go.Frame(
-        #         data=[
-        #             go.Scatter(
-        #                 x=freq_values[:len(frames_centroid) + 1], 
-        #                 y=[amplitude_scale*np.mean(x_proj) for x_proj in [signal * np.cos(2 * np.pi * freq * t) for freq in freq_values[:len(frames_centroid) + 1]]],
-        #                 mode="lines+markers", name="Centroid x coordinate"
-        #             ),
-        #         ],
-        #     )
-        # )
-
 
         frames.append(
             go.Frame(
@@ -153,48 +149,15 @@ def wrapping_signal_varyingfreq_animation(t, signal):
                     ),
                     go.Scatter(
                         x=freq_values[:len(frames) + 1], 
-                        y=[amplitude_scale*np.mean(x_proj) for x_proj in [signal * np.cos(2 * np.pi * freq * t) for freq in freq_values[:len(frames) + 1]]],
+                        y=[amplitude_scale*np.mean(x_proj) for x_proj in [signal * np.cos(2 * np.pi * freq * (t)) for freq in freq_values[:len(frames) + 1]]],
                         mode="lines+markers", name="Centroid x coordinate"
                     ),
                 ],
                 layout=go.Layout(
-                    annotations=[dict(x=0.6, y=1.15, xref="paper", yref="paper", text=f"Test Frequency: {test_freq:.2f} Hz", showarrow=False, font=dict(size=14, color="white"))]
+                    annotations=[dict(x=0.6, y=1.15, xref="paper", yref="paper", text=f"Wrapping Frequency: {test_freq:.2f} Hz", showarrow=False, font=dict(size=14, color="white"))]
                 )
             )
         )
-
-    # fig_circle = go.Figure(
-    #     data=[
-    #         go.Scatter(x=[], y=[], mode="markers", name="Projection Trace", marker=dict(size=3)),
-    #         go.Scatter(x=[], y=[], mode="markers", name="Centroid", marker=dict(color="red", size=8, symbol="cross")),
-    #         go.Scatter(
-    #             x=max(np.abs(signal))*np.cos(np.linspace(0, 2 * np.pi, 100)),
-    #             y=max(np.abs(signal))*np.sin(np.linspace(0, 2 * np.pi, 100)),
-    #             mode="lines", name="Reference Circle", line=dict(color="gray", dash="dash")
-    #         ),
-    #     ],
-    #     layout=go.Layout(
-    #         xaxis=dict(range=[-1.0, 1.0], dtick=1.0, showgrid=True),
-    #         yaxis=dict(range=[-1.0, 1.0], dtick=1.0, showgrid=True, scaleanchor="x"),
-    #         updatemenus=create_updatemenus(0.30, 1.20, 500, 2000),
-    #         showlegend=False
-    #     ),
-    #     frames=frames_circle
-    # )
-
-    # fig_centroid = go.Figure(
-    #     data=[
-    #         go.Scatter(x=[], y=[], mode="lines+markers", name="Centroid X", marker=dict(size=3)),
-    #     ],
-    #     layout=go.Layout(
-    #         xaxis=dict(range=[0, 2000], title="Test Frequency (Hz)", showgrid=True),
-    #         yaxis=dict(range=[-1.0, 1.0], title="Centroid's x coordinate", showgrid=True),
-    #         updatemenus=create_updatemenus(0.30, 1.20, 50, 100),
-    #         showlegend=False
-    #     ),
-    #     frames=frames_centroid
-    # )
-
 
     fig = go.Figure(
         data=[
@@ -210,11 +173,11 @@ def wrapping_signal_varyingfreq_animation(t, signal):
             go.Scatter(x=[], y=[], mode="lines+markers", name="Centroid X", marker=dict(size=3), xaxis="x2", yaxis="y2"),
         ],
         layout=go.Layout(
-            xaxis=dict(range=[-1.0, 1.0], dtick=1.0, showgrid=True, domain=[0, 0.45]),
-            yaxis=dict(range=[-1.0, 1.0], dtick=1.0, showgrid=True, scaleanchor="x", domain=[0, 1.0]),
-            xaxis2=dict(range=[0, 2000], title="Test Frequency (Hz)", showgrid=True, domain=[0.55, 1.0]),
-            yaxis2=dict(range=[-1.0, 1.0], title="Centroid x-coordinate", showgrid=True, domain=[0, 1.0], position=0.55),
-            updatemenus=create_updatemenus(0.40, 1.20, 500, 2000),
+            xaxis=dict(range=[-max(np.abs(signal)), max(np.abs(signal))], dtick=1.0, showgrid=True, domain=[0, 0.45]),
+            yaxis=dict(range=[-max(np.abs(signal)), max(np.abs(signal))], dtick=1.0, showgrid=True, scaleanchor="x", domain=[0, 1.0]),
+            xaxis2=dict(range=[0, 2000], title="Wrapping Frequency (Hz)", showgrid=True, domain=[0.55, 1.0]),
+            yaxis2=dict(range=[-1.0, 1.0], title="Centroid x-coordinate", showgrid=True, anchor="x2", domain=[0, 1.0], position=0.55),
+            updatemenus=create_updatemenus(0.0, 1.20, 1000, 500),
             showlegend=False
         ),
         frames=frames,

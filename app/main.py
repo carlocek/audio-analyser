@@ -2,11 +2,20 @@ import streamlit as st
 import sys
 sys.path.append("C:/Users/carlo/Desktop/Github_repos/audio-analyser")
 
-# import app.pages.signal_visualizer_page as signal_visualizer_page
-
 def main():
+    def wide_space_default():
+        st.set_page_config(layout="wide")
+
+    wide_space_default()
+    
     def show_home_page():
         st.title("Audio Analyser")
+        st.markdown(f"""
+                    This is a small web application to help visualize the intuition behind the definition and computation of the Discrete Fourier Transform of a signal.
+                    - Go to **DFT Visualizer** to play around with some visualizations
+                    - Go to **DFT Frequency Extractor** to actually apply the DFT on an unploaded wav file
+                    """
+        )
 
 
     home_page = st.Page(show_home_page, title="Home")

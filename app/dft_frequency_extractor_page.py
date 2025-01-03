@@ -33,6 +33,11 @@ if uploaded_file:
     st.plotly_chart(fig_time)
     st.audio(uploaded_file, format="audio/wav")
 
+    st.subheader("Perform DFT")
+    st.write("Let's now compute the DFT of the time-domain uploaded signal to plot the resulting frequency spectrum")
+    st.write("You can choose the number of top-frequencies to use to reconstruct the original signal starting from the spectrum obtained by the DFT")
+    st.write("To visualize the basic intuition behind the DFT computation you can visit the DFT Visualizer page!")
+
     use_max_frequencies = st.checkbox("Use maximum number of frequencies", value=False, help=f"maximum number of frequencies: {N // 2 + 1}")
     # choose the number of top frequencies to visualize
     k = st.number_input(
