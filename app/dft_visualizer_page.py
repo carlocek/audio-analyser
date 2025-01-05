@@ -24,7 +24,7 @@ sample_rate = 44100
 default_frequency = 20.0
 default_amplitude = 1.0
 default_phase = 0.0
-default_duration = 0.05
+default_duration = 3.0
 
 generator = SignalGenerator(sample_rate)
 
@@ -74,6 +74,7 @@ for i, signal in enumerate(st.session_state.signals):
         fig.add_trace(go.Scatter(x=st.session_state.signals[i].t, y=st.session_state.signals[i].y, mode="lines", name=f"Signal {i+1}"))
         fig.update_layout(
             yaxis=dict(range=[-1.0, 1.0]),
+            xaxis=dict(range=[0.0, 0.05]),
             margin=dict(l=0, r=0, t=0, b=0),
             height=300
         )
@@ -94,20 +95,16 @@ else:
 fig_sum = go.Figure()
 fig_sum.add_trace(go.Scatter(x=t, y=summed_signal, mode="lines", name="Summed Signal", line=dict(color="red", width=3)))
 fig_sum.update_layout(
-        margin=dict(l=0, r=0, t=0, b=0),
-        height=200
-    )
+    xaxis=dict(range=[0.0, 0.05]),
+    margin=dict(l=0, r=0, t=0, b=0),
+    height=200
+)
 st.plotly_chart(fig_sum)
 
 # save summed signal to WAV file for playback
-min_duration = 3.0 
-if default_duration < min_duration:
-    repetitions = int(np.ceil(min_duration / default_duration))
-    playback_signal = np.tile(summed_signal, repetitions)
-else:
-    playback_signal = summed_signal
-
-normalized_signal = np.int16(playback_signal * 32767)
+peak = np.max(np.abs(summed_signal))
+normalized_signal = np.int16((summed_signal / peak) * min(peak, 1) * 32767)
+# normalized_signal = np.int16(playback_signal * 32767)
 wav_path = "../data/summed_signal.wav"
 wavfile.write(wav_path, sample_rate, normalized_signal)
 st.audio(wav_path, format="audio/wav")
