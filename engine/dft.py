@@ -1,4 +1,5 @@
 import numpy as np
+import math
 from joblib import Parallel, delayed
 import plotly.graph_objects as go
 
@@ -31,7 +32,7 @@ def dft_parallel(samples, sample_rate, progress_bar, block_size):
             for freq_index in range(start, end)
         )
         spectrum.extend(block_results)
-        progress_text = f"Computing DFT: {end}/{num_frequencies}" if end != num_frequencies else "DFT Completed!"
+        progress_text = f"Computing DFT: {math.trunc(100*(end/num_frequencies))}%" if end != num_frequencies else "DFT Completed!"
         progress_bar.progress(end/num_frequencies, text=progress_text)
     return spectrum
 
