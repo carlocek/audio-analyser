@@ -88,8 +88,11 @@ def create_updatemenus(x, y, frame_duration, transition_duration):
     ]
 
 def wrapping_signal_fixedfreq_animation(t, signal, test_freq):
+    print("x")
     x_proj = signal * np.cos(2 * np.pi * test_freq * t)
+    print("y")
     y_proj = signal * np.sin(2 * np.pi * test_freq * t)
+    print("z")
     frames = [
         go.Frame(data=[
             go.Scatter(x=x_proj[:i], y=y_proj[:i], mode="markers", name="Projection Trace"),
@@ -101,6 +104,7 @@ def wrapping_signal_fixedfreq_animation(t, signal, test_freq):
             ),
         ]) for i in range(1, len(t), 10)
     ]
+    print("b")
     fig = go.Figure(
         data=[
             go.Scatter(x=[], y=[], mode="markers", name="Projection Trace", marker=dict(size=3)),
@@ -119,6 +123,7 @@ def wrapping_signal_fixedfreq_animation(t, signal, test_freq):
         ),
         frames=frames
     )
+    print("c")
     return fig
 
 

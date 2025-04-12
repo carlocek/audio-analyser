@@ -118,14 +118,16 @@ st.markdown("""
             Ww then increase $f_t$ and whenever $f_t=f_i$ we observe a position-shift of the centroid -> that's the basic intuition on how we detect frequencies in time-domain signals using DFT
             """
 )
-
+cropped_summed_signal = summed_signal[:len(summed_signal)//100]
+cropped_t = t[:len(t)//100]
 if st.toggle("Show fixed wrapping frequency animation"):
     test_freq = st.slider("Wrapping Frequency (Hz)", 0.0, 2000.0, 440.0, 10.0)
     st.write("Signal projection on complex circumference for fixed test frequency")
-    fig = wrapping_signal_fixedfreq_animation(t, summed_signal, test_freq)
+    fig = wrapping_signal_fixedfreq_animation(cropped_t, cropped_summed_signal, test_freq)
+    print("a")
     st.plotly_chart(fig, use_container_width=True)
 
 if st.toggle("Show frequency extraction animation"):
     st.write("Signal projection on complex circumference for increasing test frequencies and relative centroids x-coordinates")
-    fig = wrapping_signal_varyingfreq_animation(t, summed_signal)
+    fig = wrapping_signal_varyingfreq_animation(cropped_t, cropped_summed_signal)
     st.plotly_chart(fig, use_container_width=True)
