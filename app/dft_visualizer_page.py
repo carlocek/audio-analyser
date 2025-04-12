@@ -104,7 +104,6 @@ st.plotly_chart(fig_sum)
 # save summed signal to WAV file for playback
 peak = np.max(np.abs(summed_signal))
 normalized_signal = np.int16((summed_signal / peak) * min(peak, 1) * 32767)
-# normalized_signal = np.int16(playback_signal * 32767)
 wav_path = "../data/summed_signal.wav"
 wavfile.write(wav_path, sample_rate, normalized_signal)
 st.audio(wav_path, format="audio/wav")
